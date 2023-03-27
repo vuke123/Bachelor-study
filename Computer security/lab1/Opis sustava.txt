@@ -1,0 +1,7 @@
+Pri inicijalizaciji, s glavnom (master) lozinkom, koja mi pomocu alata PBKDF2 generira kljuc, enkriptiram fiksnu rijec "ConfirmMasterPassword" te spremam taj šifrat i njegov HMAC u passwords.txt datoteku (svaki u svoj red). U datoteku parameters.txt spremam salt i inicijalizacijski vektor koji sam koristio za to.(svaki u svoj red) 
+Svakom sljedecom metodom (put ili get), pri provjeravanju tocnog unosa glavne lozinke, s njom pokušavam dekriptirat šifrat nastao od fiksne rijeci te provjeravam dobivam li istu rijec. 
+Iako napadac može, pri ulasku u moj python program, saznat rijec koju enkriptiram i šifrat te rijeci, on ne može saznati s kojim se kljucem (moja glavna lozinka) enkripcija dogodila, ako je kljuc dovoljno dugacak. Iz toga razloga, pri inicijalizaciji zahtjevam da se ispiše malo kompliciranija lozinka. 
+Adrese i njihove lozinke enkriptiram kljucem dobivenim od glavne lozinke alatom PBKDF2 koju koristim u AES CBC nacinom šifriranja. 
+Adresu i lozinku spajam s razmakom u novu rijec te enkriptat i HMAC takoder stavljam svaki u svoj red u datoteku passwords.txt dok salt i IV koji koristim za njihovu enkripciju stavljam u parameters.txt. 
+
+MANA: korištenje fiksnog key pri generiranju HMACA!!!
