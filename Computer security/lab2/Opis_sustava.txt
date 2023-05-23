@@ -1,0 +1,6 @@
+Username u obliku plain-texta, hashirana lozinka i ne-hashirani salt se spremaju u datoteku passwords.txt, jedno ispod drugog.
+U drugoj datoteci spremam HMAC te red ispod key za generiranje tog HMAC-a. 
+Drugom datotekom simuliram pohranu hmaca negdje privatno na discu kako bih čuvao integritet.
+Iako mi do username-a napadač može doć koristim time.sleep() koji se eksponencijalno povećava pri pogrešnom unosu.
+Na taj način osporavam bruteforce napad prilikom online prijave.
+Također lozinka mora sadržavat barem 8 znakova s velikim i malim slovom te barem jednim brojem.

